@@ -10,7 +10,7 @@ if [ $condition -eq 0 ] ; then
     echo "Gazebo is not installed. Check the installation steps: https://github.com/erlerobot/gym#installing-the-gazebo-environment"
 fi
 
-source /opt/ros/indigo/setup.bash
+source /opt/ros/kinetic/setup.bash
 
 # Create catkin_ws
 ws="catkin_ws"
@@ -36,7 +36,7 @@ sudo apt-get install -y git                            \
                         libusb-dev libftdi-dev         \
                         pyqt4-dev-tools                \
                         python-vcstool                 \
-                        ros-indigo-bfl                 \
+                        ros-kinetic-bfl                 \
                         python-pip                     \
                         g++                            \
                         ccache                         \
@@ -46,23 +46,23 @@ sudo apt-get install -y git                            \
                         automake                       \
                         autoconf                       \
                         libexpat1-dev                  \
-                        ros-indigo-mavlink             \
-                        ros-indigo-octomap-msgs        \
-                        ros-indigo-joy                 \
-                        ros-indigo-geodesy             \
-                        ros-indigo-octomap-ros         \
-                        ros-indigo-control-toolbox     \
-			ros-indigo-pluginlib	       \
-			ros-indigo-trajectory-msgs     \
-			ros-indigo-control-msgs	       \
-			ros-indigo-std-srvs 	       \
-			ros-indigo-nodelet	       \
-			ros-indigo-urdf		       \
-			ros-indigo-rviz		       \
-			ros-indigo-kdl-conversions     \
-			ros-indigo-eigen-conversions   \
-			ros-indigo-tf2-sensor-msgs     \
-			ros-indigo-pcl-ros	       \
+                        ros-kinetic-mavlink             \
+                        ros-kinetic-octomap-msgs        \
+                        ros-kinetic-joy                 \
+                        ros-kinetic-geodesy             \
+                        ros-kinetic-octomap-ros         \
+                        ros-kinetic-control-toolbox     \
+			ros-kinetic-pluginlib	       \
+			ros-kinetic-trajectory-msgs     \
+			ros-kinetic-control-msgs	       \
+			ros-kinetic-std-srvs 	       \
+			ros-kinetic-nodelet	       \
+			ros-kinetic-urdf		       \
+			ros-kinetic-rviz		       \
+			ros-kinetic-kdl-conversions     \
+			ros-kinetic-eigen-conversions   \
+			ros-kinetic-tf2-sensor-msgs     \
+			ros-kinetic-pcl-ros	       \
                         gawk                           \
                         libtinyxml2-dev
 sudo easy_install numpy

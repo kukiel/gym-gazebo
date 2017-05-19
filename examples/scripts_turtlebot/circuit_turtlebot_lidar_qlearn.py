@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import gym
 import gym_gazebo
-import time
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy
 import random
 import time
-
-import matplotlib
-import matplotlib.pyplot as plt
 
 class QLearn:
     def __init__(self, actions, epsilon, alpha, gamma):
@@ -57,7 +55,7 @@ class QLearn:
 
     def learn(self, state1, action1, reward, state2):
         maxqnew = max([self.getQ(state2, a) for a in self.actions])
-        self.learnQ(state1, action1, reward, reward + self.gamma*maxqnew)
+        self.learnQ(state1, action1, reward, reward + self.gamma * maxqnew)
 
 class LivePlot(object):
     def __init__(self, outdir, data_key='episode_rewards', line_color='blue'):
@@ -82,10 +80,10 @@ class LivePlot(object):
 
     def plot(self):
         results = gym.monitoring.monitor.load_results(self.outdir)
-        data =  results[self.data_key]
+        data = results[self.data_key]
 
         #only update plot if data is different (plot calls are expensive)
-        if data !=  self._last_data:
+        if data != self._last_data:
             self._last_data = data
             plt.plot(data, color=self.line_color)
 
@@ -98,9 +96,9 @@ def render():
     render_interval = 50 #Show render Every Y episodes.
     render_episodes = 10 #Show Z episodes every rendering.
 
-    if (x%render_interval == 0) and (x != 0) and (x > render_skip):
+    if (x % render_interval == 0) and (x != 0) and (x > render_skip):
         env.render()
-    elif ((x-render_episodes)%render_interval == 0) and (x != 0) and (x > render_skip) and (render_episodes < x):
+    elif ((x-render_episodes) % render_interval == 0) and (x != 0) and (x > render_skip) and (render_episodes < x):
         env.render(close=True)
 
 if __name__ == '__main__':
@@ -109,7 +107,7 @@ if __name__ == '__main__':
 
 
     outdir = '/tmp/gazebo_gym_experiments'
-    env.monitor.start(outdir, force=True, seed=None)
+    env = gym.wrappers.Monitor(env, outdir, force=True)
 
     #plotter = LivePlot(outdir)
 
@@ -156,7 +154,7 @@ if __name__ == '__main__':
 
             qlearn.learn(state, action, reward, nextState)
 
-            env.monitor.flush(force=True)
+            # env.monitor.flush(force=True)
 
             if not(done):
                 state = nextState
@@ -166,10 +164,10 @@ if __name__ == '__main__':
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
-        print ("EP: "+str(x+1)+" - [alpha: "+str(round(qlearn.alpha,2))+" - gamma: "+str(round(qlearn.gamma,2))+" - epsilon: "+str(round(qlearn.epsilon,2))+"] - Reward: "+str(cumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s))
+        print ("EP: " + str(x + 1) + " - [alpha: " + str(round(qlearn.alpha, 2)) + " - gamma: " + str(round(qlearn.gamma, 2)) + " - epsilon: " + str(round(qlearn.epsilon, 2)) + "] - Reward: " + str(cumulated_reward) + "     Time: %d:%02d:%02d" % (h, m, s))
 
     #Github table content
-    print ("\n|"+str(total_episodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(highest_reward)+"| PICTURE |")
+    print ("\n|" + str(total_episodes) + "|" + str(qlearn.alpha) + "|" + str(qlearn.gamma) + "|" + str(initial_epsilon) + "*" + str(epsilon_discount) + "|" + str(highest_reward) + "| PICTURE |")
 
     l = last_time_steps.tolist()
     l.sort()

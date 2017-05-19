@@ -50,6 +50,7 @@ class DeepQ:
         self.learningRate = learningRate
 
     def initNetworks(self, hiddenLayers):
+        print "XXXXXX", self.input_size, self.output_size
         model = self.createModel(self.input_size, self.output_size, hiddenLayers, "relu", self.learningRate)
         self.model = model
 
@@ -62,13 +63,13 @@ class DeepQ:
         regularizationFactor = 0.01
         model = Sequential()
         if len(hiddenLayers) == 0: 
-            model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform', bias=bias))
+            model.add(Dense(self.output_size, input_shape=(self.input_size,), kernel_initializer='lecun_uniform', bias=bias))
             model.add(Activation("linear"))
         else :
             if regularizationFactor > 0:
-                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform', W_regularizer=l2(regularizationFactor),  bias=bias))
+                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), kernel_initializer='lecun_uniform', W_regularizer=l2(regularizationFactor),  bias=bias))
             else:
-                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform', bias=bias))
+                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), kernel_initializer='lecun_uniform', bias=bias))
 
             if (activationType == "LeakyReLU") :
                 model.add(LeakyReLU(alpha=0.01))
@@ -78,16 +79,16 @@ class DeepQ:
             for index in range(1, len(hiddenLayers)):
                 layerSize = hiddenLayers[index]
                 if regularizationFactor > 0:
-                    model.add(Dense(layerSize, init='lecun_uniform', W_regularizer=l2(regularizationFactor), bias=bias))
+                    model.add(Dense(layerSize, kernel_initializer='lecun_uniform', W_regularizer=l2(regularizationFactor), bias=bias))
                 else:
-                    model.add(Dense(layerSize, init='lecun_uniform', bias=bias))
+                    model.add(Dense(layerSize, kernel_initializer='lecun_uniform', bias=bias))
                 if (activationType == "LeakyReLU") :
                     model.add(LeakyReLU(alpha=0.01))
                 else :
                     model.add(Activation(activationType))
                 if dropout > 0:
                     model.add(Dropout(dropout))
-            model.add(Dense(self.output_size, init='lecun_uniform', bias=bias))
+            model.add(Dense(self.output_size, kernel_initializer='lecun_uniform', bias=bias))
             model.add(Activation("linear"))
         optimizer = optimizers.RMSprop(lr=learningRate, rho=0.9, epsilon=1e-06)
         model.compile(loss="mse", optimizer=optimizer)
@@ -97,10 +98,10 @@ class DeepQ:
     def createModel(self, inputs, outputs, hiddenLayers, activationType, learningRate):
         model = Sequential()
         if len(hiddenLayers) == 0: 
-            model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform'))
+            model.add(Dense(self.output_size, input_shape=(self.input_size,), kernel_initializer='lecun_uniform'))
             model.add(Activation("linear"))
         else :
-            model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform'))
+            model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), kernel_initializer='lecun_uniform'))
             if (activationType == "LeakyReLU") :
                 model.add(LeakyReLU(alpha=0.01))
             else :
@@ -109,12 +110,12 @@ class DeepQ:
             for index in range(1, len(hiddenLayers)):
                 # print("adding layer "+str(index))
                 layerSize = hiddenLayers[index]
-                model.add(Dense(layerSize, init='lecun_uniform'))
+                model.add(Dense(layerSize, kernel_initializer='lecun_uniform'))
                 if (activationType == "LeakyReLU") :
                     model.add(LeakyReLU(alpha=0.01))
                 else :
                     model.add(Activation(activationType))
-            model.add(Dense(self.output_size, init='lecun_uniform'))
+            model.add(Dense(self.output_size, kernel_initializer='lecun_uniform'))
             model.add(Activation("linear"))
         optimizer = optimizers.RMSprop(lr=learningRate, rho=0.9, epsilon=1e-06)
         model.compile(loss="mse", optimizer=optimizer)
@@ -240,7 +241,7 @@ class DeepQ:
                 if isFinal:
                     X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
-            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
+            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), epochs=1, verbose = 0)
 
     def saveModel(self, path):
         self.model.save(path)
@@ -285,14 +286,14 @@ if __name__ == '__main__':
         learningRate = 0.00025
         discountFactor = 0.99
         memorySize = 1000000
-        network_inputs = 100
+        network_inputs = 20
         network_outputs = 21
         network_structure = [300,300]
         current_epoch = 0
 
         deepQ = DeepQ(network_inputs, network_outputs, memorySize, discountFactor, learningRate, learnStart)
         deepQ.initNetworks(network_structure)
-        env.monitor.start(outdir, force=True, seed=None)
+        env = gym.wrappers.Monitor(env, outdir, force=True)
     else:
         #Load weights, monitor info and parameter info.
         #ADD TRY CATCH fro this else
@@ -318,7 +319,7 @@ if __name__ == '__main__':
 
         clear_monitor_files(outdir)
         copy_tree(monitor_path,outdir)
-        env.monitor.start(outdir, resume=True, seed=None)
+        env = gym.wrappers.Monitor(env, outdir, force=True)
 
     last100Scores = [0] * 100
     last100ScoresIndex = 0
@@ -361,7 +362,7 @@ if __name__ == '__main__':
                 print ("reached the end! :D")
                 done = True
 
-            env.monitor.flush(force=True)
+            #env.monitor.flush(force=True)
             if done:
                 last100Scores[last100ScoresIndex] = t
                 last100ScoresIndex += 1
@@ -377,7 +378,7 @@ if __name__ == '__main__':
                     if (epoch)%100==0:
                         #save model weights and monitoring data every 100 epochs. 
                         deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.h5')
-                        env.monitor.flush()
+                        #env.monitor.flush()
                         copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch))
                         #save simulation parameters.
                         parameter_keys = ['epochs','steps','updateTargetNetwork','explorationRate','minibatch_size','learnStart','learningRate','discountFactor','memorySize','network_inputs','network_outputs','network_structure','current_epoch']
@@ -396,5 +397,5 @@ if __name__ == '__main__':
         # explorationRate -= (2.0/epochs)
         explorationRate = max (0.05, explorationRate)
 
-    env.monitor.close()
+    #env.monitor.close()
     env.close()
